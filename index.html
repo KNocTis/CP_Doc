@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        
+        <meta charset="utf-8">
+        
+        <script src="lib/jquery-3.1.1.min.js"></script>
+        <script src="lib/fabric.js"></script>
+        <script src="lib/bootstrap.min.js.css"></script>
+        <script src="main.js"></script>
+        <script src="wordpressCode.js"></script>
+        
+        <link href="lib/bootstrap.min.css" rel="stylesheet">
+        
+        <style>
+            
+            #toolbarZone div {
+                display: inline-block;
+                vertical-align: top;
+            }
+            
+            .toolbar {
+                position: fixed; 
+                width: 100%;
+                z-index: 999;
+                display: block;
+                top: 0px;
+            }
+            
+            #canvasContanier {
+                margin-top: 12em;
+                position: static;
+                
+            }
+            
+            #imgUrl {
+                width: 80%;
+            }
+            
+            #blockInfo {
+                margin-left: 2em;
+            }
+            
+            #output {
+                margin-left: 2em;
+            }
+            
+        </style>
+        
+    </head>
+    
+    <body>
+        
+        <div class="panel panel-default toolbar">
+            <div class="panel-body">
+                <div class="contanier" id="toolbarZone">
+                    <div>
+<!--                        <input type="text" id="imgUrl">-->
+                        <button type="button" class="btn btn-default btn-sm" id="" data-toggle="modal" data-target="#myModal">Insert Image</button>
+
+                        <br><br>
+                        <button class="btn btn-info btn-sm" id="square">Square</button>
+                        <button class="btn btn-info btn-sm" id="circle">Circle</button>
+                        
+                        <br><br>
+                        <button class="btn btn-info btn-sm" id="bookmark">Bookmark</button>
+
+                        <br><br>
+                        
+
+                    </div>
+
+                    <div id="blockInfo">
+                        <p id="positionInfo"></p>
+                        <input type="text" class="form-control" placeholder="set url here" id="urlofblock">
+
+                    </div>
+                    
+                    <div id="output">
+                        <button class="btn btn-danger btn-sm" id="output">Go!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+
+        <div id="canvasContanier" class="contanier">
+            <canvas id="c" left="200" width="300" height="300" style="border:1px solid #ccc; "></canvas>
+        </div>
+        
+        <div>
+        
+            <textarea id="htmlCode" style="width: 400px; height: 200px"></textarea>
+            
+        </div>
+        
+        
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Insert Image Url</h4>
+              </div>
+              <div class="modal-body">
+                <input type="text" class="form-control" placeholder="Insert image url here" id="imgUrl">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="loadimg">Ok</button>
+              </div>
+            </div>
+
+          </div>
+        </div>  
+        
+        <script>
+
+        </script>
+        
+    </body>
+    
+</html>
