@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        
+        <meta charset="utf-8">
+        
+        <script src="jquery-3.1.1.min.js"></script>
+        <script src="modal.js"></script>
+        
+        <link href="modal.css" rel="stylesheet">
+        
+    </head>
+    
+        <body>
+
+            <!-- you can place this modal window anywhere in the content -->
+            <div class="modal-wrapper">
+              <div class="modal-test">
+                <div class="close-modal">X</div>
+                <div id="modal-content"></div>
+              </div>
+            </div>
+            <!-- end modal-wrapper -->
+
+            <div id="wrapper">
+              <button href="example.html" class="modal-link">Open Modal</button>
+              <!-- our JS calls the .modal-link class -->
+            </div>
+
+            <div class="show-in-modal hide">
+              <h1>This is the modal content</h1>
+            </div>
+            <!-- our JS calls the .show-in-modal class -->
+
+        </body>
+    
+</html>
