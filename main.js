@@ -41,6 +41,16 @@ $(document).ready(function(){
         }
     });
     
+    $('#newTab').change(function(){
+        if (currentBlock == undefined) {return;}
+        
+        if (this.checked) {
+            currentBlock.showMode = "newtab";
+        } else {
+            currentBlock.showMode = "modal";
+        }
+    })
+    
 });
 
 var canvas;
@@ -69,6 +79,8 @@ function addARectOntoCanvas()
         cornerSize: 10,
         cornerColor: "#3480f9"
     });
+    
+    aSquare.showMode = "modal";
     
     aSquare.on("selected", function(){
         $('#positionInfo').text(" X: " + aSquare.left + " Y: " + aSquare.top);
@@ -102,7 +114,7 @@ function loadImgIntoBackOfCanvas(url)
     }
     
     img.onerror = function(){
-        console.log("img can be loaded");
+        console.log("img can not be loaded");
     }
 
 }

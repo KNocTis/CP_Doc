@@ -39,14 +39,14 @@
     .modal-test {
         display: none;
         position: fixed;
-        width: 850px;
-        min-height: 300px;
+        width: 80%;
+        min-height: 50%;
         padding: 20px 15px;
         background: #FEFEFE;
         color: #000000;
         text-align: center;
-        left: 10vw;
-        top: 10vw;
+        left: 10%;
+        top: 15%;
         border:1px solid lightgrey;
         border-radius: 10px;
     }

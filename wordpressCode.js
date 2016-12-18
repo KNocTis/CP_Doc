@@ -25,21 +25,7 @@ function htmlCodeForWPwithBlocks(blocks, image)
 
     for (let i = 0; i < blocks.length; i++)
     {
-        let aA = document.createElement('a');
-        aA.href = blocks[i].url;
-        aA.target = "_blank";
-        aA.style.position = "absolute";
-        aA.style.marginLeft = blocks[i].left * scaleFactor + "px";
-        aA.style.marginTop = blocks[i].top * scaleFactor + "px";
-        
-        let aImg = document.createElement('img');
-        aImg.src = transparentImageUrl;
-        aImg.style.width = blocks[i].getWidth() * scaleFactor + "px";
-        aImg.style.height = blocks[i].getHeight() * scaleFactor + "px";
-        
-        aA.appendChild(aImg);
-        
-        aDiv.appendChild(aA);
+        createElmentWithBlock(blocks[i], aDiv, scaleFactor);
     }
     
     $('#htmlCode').val(aDiv.outerHTML.replace(/&quot;/g, "\'"));
@@ -47,3 +33,46 @@ function htmlCodeForWPwithBlocks(blocks, image)
     
 }
 //img/20161201182600.png
+
+function createElmentWithBlock(block, aDiv, scaleFactor) {
+    let aA = document.createElement('a');
+    aA.href = block.url;
+    aA.target = "_blank";
+    aA.style.position = "absolute";
+    aA.style.marginLeft = block.left * scaleFactor + "px";
+    aA.style.marginTop = block.top * scaleFactor + "px";
+    if (block.showMode == "modal") {
+        $(aA).addClass("modal-link");
+    }
+    
+
+    let aImg = document.createElement('img');
+    aImg.src = transparentImageUrl;
+    aImg.style.width = block.getWidth() * scaleFactor + "px";
+    aImg.style.height = block.getHeight() * scaleFactor + "px";
+
+    aA.appendChild(aImg);
+
+    aDiv.appendChild(aA);
+}
+
+function createElmentInModalModeWithBlock (block, aDiv, scaleFactor) {
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
