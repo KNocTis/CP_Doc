@@ -1,7 +1,7 @@
 var testMode = false;
-var transparentImageUrl = testMode? "http://172.106.32.119/wp-content/uploads/2016/12/EEFA85-0.5.png" : "http://172.106.32.119/wp-content/uploads/2016/12/NFFFFFF-0.png"
+var transparentImageUrl = testMode? "http://172.106.32.119/wp-content/uploads/2016/12/EEFA85-0.5.png" : "http://172.16.21.109/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png"
 
-var maxWidth = 620; //depends on the max width of Wordpress post page
+var maxWidth = 800; //depends on the max width of Wordpress post page
 
 function htmlCodeForWPwithBlocks(blocks, image)
 {

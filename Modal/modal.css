@@ -48,6 +48,7 @@
         left: 10vw;
         top: 10vw;
         border:1px solid lightgrey;
+        border-radius: 10px;
     }
     
     .close-modal {
