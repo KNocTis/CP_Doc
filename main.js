@@ -11,16 +11,16 @@ $(document).ready(function(){
     
     
     $('#square').click(function(){
-        addARectOntoCanvas();
+        addARectOntoCanvas("link");
     });
     
     $('#circle').click(function(){
         addACircleOntoCanvas();
     });
     
-    $('#circle').click(function(){
-        addABookmarkOntoCanvas();
-    });
+    $('#bookmark').click(function(){
+        addARectOntoCanvas("bookmark");
+    })
     
     $('#output').click(function(){
         let shapesInCanvas = canvas.getObjects();
@@ -51,12 +51,50 @@ $(document).ready(function(){
         }
     })
     
+    $('#setBookmark').click(function(){
+        addBookmarkOfBlock(currentBlock);
+    });
+    
 });
 
 var canvas;
 
 var currentBlock; //current selected bolck
+
+function currentBlockIsChanged () {
+    toggleControlModule();
+    updateBlocks();
+}
     
+function toggleControlModule () {
+    var divsOfControlModules = $('.controlModules');
+    for (let i = 0; i < divsOfControlModules.length; i++) {
+        $(divsOfControlModules[i]).addClass("hide");
+    }
+    
+    if (currentBlock.type == "link") {
+        $('#blockInfo').removeClass('hide');
+    } else if (currentBlock.type == "bookmark") {
+        $('#bookmarktools').removeClass('hide');
+    }
+}
+
+function updateBlocks() {
+    let shapesInCanvas = canvas.getObjects();
+    
+    for (let i = 0; i < shapesInCanvas.length; i++) {
+        if (shapesInCanvas[i].type == "ofBookmark") {
+            shapesInCanvas[i].visible = false;
+        }
+    }
+    
+    if (currentBlock.type == "bookmark") {
+        if (currentBlock.bookmark !== undefined) {
+            currentBlock.bookmark.visible = true;
+        }
+    }
+}
+
 var img = new Image();
 
 function createCanvas()
@@ -64,12 +102,12 @@ function createCanvas()
     canvas = new fabric.Canvas('c');
 }
 
-function addARectOntoCanvas()
+function addARectOntoCanvas(type)
 {
     let aSquare = new fabric.Rect(
         {
             width: 50, left: 50,
-            height: 20, top: 30,
+            height: 20, top: window.pageYOffset + 30,
             fill: '#f55',
             opacity: 0.6
         }
@@ -81,17 +119,47 @@ function addARectOntoCanvas()
     });
     
     aSquare.showMode = "modal";
+    aSquare.type = type;
     
     aSquare.on("selected", function(){
         $('#positionInfo').text(" X: " + aSquare.left + " Y: " + aSquare.top);
         currentBlock = aSquare;
         $("#urlofblock").val(currentBlock.url ? currentBlock.url : "");
+        currentBlockIsChanged();
     });
     
     aSquare.on("moving", function(){
         $('#positionInfo').text(" X: " + aSquare.left + " Y: " + aSquare.top);
     });
+    
+    aSquare.on("deselected", function() {
+        aBlockHasBeenDeselected(aSquare);
+    });
 
+    canvas.add(aSquare);
+}
+
+function addBookmarkOfBlock (block) {
+    
+    if (currentBlock.bookmark !== undefined) {canvas.remove(currentBlock.bookmark);}
+    
+    let aSquare = new fabric.Rect(
+        {
+            width: 15, left: 50,
+            height: 15, top: window.pageYOffset + 30,
+            fill: '#ffdd55',
+            opacity: 0.6
+        }
+    );
+    
+    aSquare.set({
+        cornerSize: 10,
+        cornerColor: "#3480f9"
+    });
+    
+    currentBlock.bookmark = aSquare;
+    aSquare.type = "ofBookmark";
+    
     canvas.add(aSquare);
 }
 
@@ -117,6 +185,9 @@ function loadImgIntoBackOfCanvas(url)
         console.log("img can not be loaded");
     }
 
+}
+
+function aBlockHasBeenDeselected (block) {
 }
 
 

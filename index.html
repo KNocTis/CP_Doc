@@ -38,7 +38,7 @@
                 width: 80%;
             }
             
-            #blockInfo {
+            .controlModules {
                 margin-left: 2em;
             }
             
@@ -46,6 +46,9 @@
                 margin-left: 2em;
             }
             
+            .hide {
+                display: none;
+            }
         </style>
         
     </head>
@@ -65,16 +68,19 @@
                         
                         <br><br>
                         <button class="btn btn-info btn-sm" id="bookmark">Bookmark</button>
-
-                        <br><br>
-                        
+                  
 
                     </div>
 
-                    <div id="blockInfo">
+                    <div id="blockInfo" class="controlModules hide">
                         <p id="positionInfo"></p>
                         <input type="text" class="form-control" placeholder="set url here" id="urlofblock"><input id="newTab" type="checkbox"><label for="newTab">Open in new tab</label>
 
+                    </div>
+                    
+                    <div id="bookmarktools" class="controlModules hide">
+                        <p id="positionInfo">this is control of bookmarks</p>
+                        <button class="btn btn-info btn-sm" id="setBookmark">Reset/Set bookmark position</button>
                     </div>
                     
                     <div id="output">

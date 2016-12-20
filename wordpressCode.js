@@ -25,7 +25,7 @@ function htmlCodeForWPwithBlocks(blocks, image)
 
     for (let i = 0; i < blocks.length; i++)
     {
-        createElmentWithBlock(blocks[i], aDiv, scaleFactor);
+        createElmentWithBlock(blocks[i], aDiv, scaleFactor, i);
     }
     
     $('#htmlCode').val(aDiv.outerHTML.replace(/&quot;/g, "\'"));
@@ -34,16 +34,30 @@ function htmlCodeForWPwithBlocks(blocks, image)
 }
 //img/20161201182600.png
 
-function createElmentWithBlock(block, aDiv, scaleFactor) {
+function createElmentWithBlock(block, aDiv, scaleFactor, index) {
+    //position of bookmark will be handled with bookmark blocks
+    if (block.type == "ofBookmark") {return;}
+    
+    //
     let aA = document.createElement('a');
-    aA.href = block.url;
-    aA.target = "_blank";
+    //View part
     aA.style.position = "absolute";
     aA.style.marginLeft = block.left * scaleFactor + "px";
     aA.style.marginTop = block.top * scaleFactor + "px";
-    if (block.showMode == "modal") {
-        $(aA).addClass("modal-link");
+    
+    //Data part
+    if (block.type == "link") {
+        aA.href = block.url;
+        aA.target = "_blank";
+        if (block.showMode == "modal") {
+            $(aA).addClass("modal-link");
+        }
+    } else if (block.type == "bookmark") {
+        let idOfBookmark = "bookmark" + index;
+        aA.href = "#" + idOfBookmark;
+        addBookmarkPositionWithBlock(block.bookmark, aDiv, scaleFactor, idOfBookmark);
     }
+
     
 
     let aImg = document.createElement('img');
@@ -54,6 +68,19 @@ function createElmentWithBlock(block, aDiv, scaleFactor) {
     aA.appendChild(aImg);
 
     aDiv.appendChild(aA);
+}
+
+function addBookmarkPositionWithBlock(block, aDiv, scaleFactor, id) {
+    let aA = document.createElement('a');
+    
+    aA.style.position = "absolute";
+    aA.style.marginLeft = block.left * scaleFactor + "px";
+    aA.style.marginTop = block.top * scaleFactor + "px";
+    
+    aA.id = id;
+    
+    aDiv.appendChild(aA);
+
 }
 
 function createElmentInModalModeWithBlock (block, aDiv, scaleFactor) {
