@@ -1,5 +1,6 @@
 var testMode = false;
-var transparentImageUrl = testMode? "http://172.106.32.119/wp-content/uploads/2016/12/EEFA85-0.5.png" : "http://172.16.21.109/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png"
+//var transparentImageUrl = testMode? "http://172.106.32.119/wp-content/uploads/2016/12/EEFA85-0.5.png" : "http://172.16.21.109/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png"
+var transparentImageUrl = "/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png";
 
 var maxWidth = 800; //depends on the max width of Wordpress post page
 
@@ -28,15 +29,15 @@ function htmlCodeForWPwithBlocks(blocks, image)
         createElmentWithBlock(blocks[i], aDiv, scaleFactor, i);
     }
     
-    $('#htmlCode').val(aDiv.outerHTML.replace(/&quot;/g, "\'"));
-    console.log(aDiv);
+    $('#htmlCode').val($('#htmlCode').val() + aDiv.outerHTML.replace(/&quot;/g, "\'"));
+    //console.log(aDiv);
     
 }
 //img/20161201182600.png
 
 function createElmentWithBlock(block, aDiv, scaleFactor, index) {
     //position of bookmark will be handled with bookmark blocks
-    if (block.type == "ofBookmark") {return;}
+    //if (block.type == "ofBookmark") {return;}
     
     //
     let aA = document.createElement('a');
@@ -54,8 +55,10 @@ function createElmentWithBlock(block, aDiv, scaleFactor, index) {
         }
     } else if (block.type == "bookmark") {
         let idOfBookmark = "bookmark" + index;
-        aA.href = "#" + idOfBookmark;
-        addBookmarkPositionWithBlock(block.bookmark, aDiv, scaleFactor, idOfBookmark);
+        aA.href = "#" + block.bookmark.uid;
+        //addBookmarkPositionWithBlock(block.bookmark, aDiv, scaleFactor, idOfBookmark);
+    } else if (block.type == "ofBookmark"){
+        aA.id = block.uid;
     }
 
     

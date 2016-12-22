@@ -9,41 +9,58 @@ $(document).ready(function(){
         loadImgIntoBackOfCanvas(url);
     });
     
-    
+    //User added a rect link/modal onto current canvas
     $('#square').click(function(){
         addARectOntoCanvas("link");
     });
     
+    //User added a circle link/modal onto current canvas
     $('#circle').click(function(){
         addACircleOntoCanvas();
     });
     
+    //User added a rect bookmark onto current canvas
     $('#bookmark').click(function(){
         addARectOntoCanvas("bookmark");
     })
     
+    //Output html code
     $('#output').click(function(){
-        let shapesInCanvas = canvas.getObjects();
-        
-        for (let i = 0; i < shapesInCanvas.length; i++)
+        $('#htmlCode').val('');
+        for (let i = 0; i < canvasArray.length; i++)
         {
-            console.log("No." + i + " X: " + shapesInCanvas[i].left + " Y: " + shapesInCanvas[i].top);
+            let shapesInCanvas = canvasArray[i].getObjects();
+            
+            htmlCodeForWPwithBlocks(shapesInCanvas, imgArray[i]);
         }
+//        for (let i = 0; i < shapesInCanvas.length; i++)
+//        {
+//            console.log("No." + i + " X: " + shapesInCanvas[i].left + " Y: " + shapesInCanvas[i].top);
+//        }
         
-        htmlCodeForWPwithBlocks(shapesInCanvas, img);
     })
     
+    //the url input text has been changed
+    //And change url property of the current block
     $('#urlofblock').change(function(){
+        //Protection
+        //If the value of text input is empty or there is no selected block, do nothing
         if (currentBlock &&  $('#urlofblock').val() !== "")
         {
             currentBlock.url = $('#urlofblock').val();
-            console.log(currentBlock.url);
+            //console.log(currentBlock.url);
         }
     });
     
+    
+    //User toogled the current rectagle block as "new tab" or not
+    //Change the property of the block corespondingly
     $('#newTab').change(function(){
+        //Protection
+        //If there is no block selected, just return
         if (currentBlock == undefined) {return;}
         
+        //Toogle
         if (this.checked) {
             currentBlock.showMode = "newtab";
         } else {
@@ -51,32 +68,76 @@ $(document).ready(function(){
         }
     })
     
+    //User set/reset the bookmark desination position
+    //Add new / move the existed block of desination position onto the current canvas
     $('#setBookmark').click(function(){
         addBookmarkOfBlock(currentBlock);
     });
     
+    //User changed page number
     $('#page-selector').change(function(){
-        console.log(this.value);
         toggleCanvas(this.value -1);
     })
 });
 
-var canvas;
-var canvasArray = [];
+var canvas; //The canvas which displays on the page currently
+var canvasArray = []; //of all canvas user added
+var imgArray = []; //of all images user added
 
-var currentBlock; //current selected bolck
+var currentBlock; //Currently selected bolck
+
+
+/////////////////////////////////////////
+//The functions below are event handler//
+/////////////////////////////////////////
 
 function currentBlockIsChanged () {
+    //Changes tools display on toolbar
+    //Depens on the type of the current block
     toggleControlModule();
+    
+    //Update which blocks should be displayed on canvas
+    //All blocks be of desination positon of bookmark should be hidden
+    //Only one of them can be shown on page, which is the child of selected block
     updateBlocks();
 }
+
+function toggleCanvas (index) {
+    for (let i = 0; i < canvasArray.length; i++) {
+        let canvasIndex  = i + 1;
+        $("#canvas" + canvasIndex).parent().addClass("hide");
+        //console.log( $("#canvas" + canvasIndex)[0]);
+    }
+    let canvasIndex  = index + 1;
+    $("#canvas" + canvasIndex).parent().removeClass("hide");
     
+    canvas = canvasArray[index];
+        
+    tooglePageSelector(canvasIndex);
+}
+
+function tooglePageSelector (index) {
+    $('#page-selector').val(index);
+}
+
+///////////////////////////////////////////
+//The functions below are related to View//
+///////////////////////////////////////////
+
+//Changes tools display on toolbar
+//Depens on the type of the current block
 function toggleControlModule () {
+    //Get all divisons of control module
     var divsOfControlModules = $('.controlModules');
+    
+    //Enumerate all control modules
+    //Hide them by adding class "hide"
     for (let i = 0; i < divsOfControlModules.length; i++) {
         $(divsOfControlModules[i]).addClass("hide");
     }
     
+    //Decide which control module should be shown
+    //Show one of them by removing class "hide"
     if (currentBlock.type == "link") {
         $('#blockInfo').removeClass('hide');
     } else if (currentBlock.type == "bookmark") {
@@ -84,15 +145,20 @@ function toggleControlModule () {
     }
 }
 
+// ***** This method should be CALLED everytime page is changed *******
+//Update dispaly of blocks on current canvas
+//All "ofBookmark" should be hidden except the current one
 function updateBlocks() {
-    let shapesInCanvas = canvas.getObjects();
     
+    //Hide all "ofBookmark" blocks first
+    let shapesInCanvas = canvas.getObjects();
     for (let i = 0; i < shapesInCanvas.length; i++) {
         if (shapesInCanvas[i].type == "ofBookmark") {
             shapesInCanvas[i].visible = false;
         }
     }
     
+    //Show the only one of "ofBookmark" if the selected block is bookmark
     if (currentBlock.type == "bookmark") {
         if (currentBlock.bookmark !== undefined) {
             currentBlock.bookmark.visible = true;
@@ -100,7 +166,6 @@ function updateBlocks() {
     }
 }
 
-var img = new Image();
 
 function createCanvasWithId(id)
 {
@@ -161,7 +226,14 @@ function addARectOntoCanvas(type)
 
 function addBookmarkOfBlock (block) {
     
-    if (currentBlock.bookmark !== undefined) {canvas.remove(currentBlock.bookmark);}
+    if (currentBlock.bookmark !== undefined) 
+    {
+        //remove it from parent canvas
+        for (let i = 0; i < canvasArray.length; i++)
+        {
+            canvasArray[i].remove(currentBlock.bookmark);
+        }
+    }
     
     let aSquare = new fabric.Rect(
         {
@@ -179,6 +251,7 @@ function addBookmarkOfBlock (block) {
     
     currentBlock.bookmark = aSquare;
     aSquare.type = "ofBookmark";
+    aSquare.uid = makeid();
     
     canvas.add(aSquare);
 }
@@ -194,6 +267,8 @@ function loadImgIntoBackOfCanvas(url)
     var canvasId = "canvas" + canvasIndex;
     createCanvasWithId(canvasId);
     
+    let img = new Image();
+    
     img.src = url;
     
     img.onload = function(){
@@ -201,38 +276,34 @@ function loadImgIntoBackOfCanvas(url)
         canvas.setBackgroundImage(url, canvas.renderAll.bind(canvas));
         canvas.setWidth(img.width);
         canvas.setHeight(img.height);
-        
+        imgArray.push(img);
     }
     
     img.onerror = function(){
         console.log("img can not be loaded");
     }
 
+    
     toggleCanvas(canvasArray.length - 1);
 }
 
-function toggleCanvas (index) {
-    for (let i = 0; i < canvasArray.length; i++) {
-        let canvasIndex  = i + 1;
-        $("#canvas" + canvasIndex).parent().addClass("hide");
-        //console.log( $("#canvas" + canvasIndex)[0]);
-    }
-    let canvasIndex  = index + 1;
-    $("#canvas" + canvasIndex).parent().removeClass("hide");
-    
-    canvas = canvasArray[index];
-        
-    tooglePageSelector(canvasIndex);
-}
 
-function tooglePageSelector (index) {
-    $('#page-selector').val(index);
-}
 
 function aBlockHasBeenDeselected (block) {
 }
 
+function makeid()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 6; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
 //http://static2.fjcdn.com/comments/Excuse+me+_4952da80933dca43cec9d820b9583dd3.png
 //http://static4.fjcdn.com/comments/Oh+no+my+souffle+_990ae6c79bbe141830cf8edc66233a8d.jpg
-//
+//http://vignette4.wikia.nocookie.net/finalfantasy/images/3/33/Final-Fantasy-XV_Cover_(2016).jpg/revision/latest?cb=20160713205720
+//http://assets1.ignimgs.com/thumbs/userUploaded/2016/3/30/final-fantasy-15-director-gets-advice-from-seriescwfd1920-1459390490607_large.jpg
 //img/20161202224405.png
