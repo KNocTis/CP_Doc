@@ -1,8 +1,8 @@
 $(document).ready(function(){
     
-    createCanvas();
+    //createCanvas();
     
-    
+    //User added a img into Canvas
     $('#loadimg').click(function(){
         var url = $('#imgUrl').val();
         
@@ -55,9 +55,14 @@ $(document).ready(function(){
         addBookmarkOfBlock(currentBlock);
     });
     
+    $('#page-selector').change(function(){
+        console.log(this.value);
+        toggleCanvas(this.value -1);
+    })
 });
 
 var canvas;
+var canvasArray = [];
 
 var currentBlock; //current selected bolck
 
@@ -97,9 +102,24 @@ function updateBlocks() {
 
 var img = new Image();
 
-function createCanvas()
+function createCanvasWithId(id)
 {
-    canvas = new fabric.Canvas('c');
+    if (id == undefined || id == undefined) {
+        console.warn("Coundn't create new canvas, because id inserted is invalid")
+    }
+    let newCanvas = document.createElement('canvas');
+    $(newCanvas).addClass("fabricCanvas");
+    newCanvas.id = id;
+    $('#canvasContanier').append(newCanvas);
+    console.log(id);
+    
+    let newFabricCanvas = new fabric.Canvas(id);
+    canvasArray.push(newFabricCanvas);
+    canvas = newFabricCanvas;
+    toggleCanvas(canvasArray.length);
+    
+    //Add page into Select element
+    $('#page-selector').append("<option value='" + canvasArray.length + "'>" + canvasArray.length + "</option>");
 }
 
 function addARectOntoCanvas(type)
@@ -170,6 +190,9 @@ function addACircleOntoCanvas()
 
 function loadImgIntoBackOfCanvas(url)
 {
+    let canvasIndex  = canvasArray.length + 1;
+    var canvasId = "canvas" + canvasIndex;
+    createCanvasWithId(canvasId);
     
     img.src = url;
     
@@ -185,10 +208,31 @@ function loadImgIntoBackOfCanvas(url)
         console.log("img can not be loaded");
     }
 
+    toggleCanvas(canvasArray.length - 1);
+}
+
+function toggleCanvas (index) {
+    for (let i = 0; i < canvasArray.length; i++) {
+        let canvasIndex  = i + 1;
+        $("#canvas" + canvasIndex).parent().addClass("hide");
+        //console.log( $("#canvas" + canvasIndex)[0]);
+    }
+    let canvasIndex  = index + 1;
+    $("#canvas" + canvasIndex).parent().removeClass("hide");
+    
+    canvas = canvasArray[index];
+        
+    tooglePageSelector(canvasIndex);
+}
+
+function tooglePageSelector (index) {
+    $('#page-selector').val(index);
 }
 
 function aBlockHasBeenDeselected (block) {
 }
 
-
+//http://static2.fjcdn.com/comments/Excuse+me+_4952da80933dca43cec9d820b9583dd3.png
+//http://static4.fjcdn.com/comments/Oh+no+my+souffle+_990ae6c79bbe141830cf8edc66233a8d.jpg
+//
 //img/20161202224405.png
