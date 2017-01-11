@@ -41,14 +41,19 @@ jQuery(document).ready(function($) {
                 console.log("location.json loaded successfully")
             });
         postXHR.always(function(data){
-            var htmlStr = $(data).find('article').html();
+            var htmlStr = $(data).find('.entry-content').html();
+            var aPostDiv = document.createElement('div');
+            $(aPostDiv).append(htmlStr);
+            $(aPostDiv).css("overflow", "scroll")
+            $(aPostDiv).css("height", "100%")
+            
             console.log(htmlStr);
             $("#modal-content").html("");
             
             var aiframe = $("<iframe />");
             aiframe.attr({srcdoc: htmlStr});
             aiframe.addClass("anotherPostContent");
-            $("#modal-content").append(aiframe);
+            $("#modal-content").append(aPostDiv);
         })          
           
 //        var postContent = $("#modal-content").load(post_link,function(e){
