@@ -29,6 +29,7 @@ function htmlCodeForWPwithBlocks(blocks, image)
         createElmentWithBlock(blocks[i], aDiv, scaleFactor, i);
     }
     
+    console.log(aDiv);
     $('#htmlCode').val($('#htmlCode').val() + aDiv.outerHTML.replace(/&quot;/g, "\'"));
     //console.log(aDiv);
     
@@ -47,10 +48,12 @@ function createElmentWithBlock(block, aDiv, scaleFactor, index) {
     aA.style.marginTop = block.top * scaleFactor + "px";
     
     //Data part
-    if (block.type == "link") {
+	$(aA).attr('data-block-type', block.type);
+	
+    if (block.type.includes("link")) {
         aA.href = block.url;
         aA.target = "_blank";
-        if (block.showMode == "modal") {
+        if (block.type.includes("modal")) {
             $(aA).addClass("modal-link");
         }
     } else if (block.type == "bookmark") {

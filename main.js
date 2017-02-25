@@ -1,3 +1,9 @@
+var canvas; //The canvas which displays on the page currently
+var canvasArray = []; //of all canvas user added
+var imgArray = []; //of all images user added
+
+var currentBlock; //Currently selected bolck
+
 $(document).ready(function(){
     
     //createCanvas();
@@ -6,22 +12,22 @@ $(document).ready(function(){
     $('#loadimg').click(function(){
         var url = $('#imgUrl').val();
         
-        loadImgIntoBackOfCanvas(url);
+        Displayer.loadImgIntoBackOfCanvas(url);
     });
     
     //User added a rect link/modal onto current canvas
     $('#square').click(function(){
-        addARectOntoCanvas("link");
+        Displayer.addARectOntoCanvas("link-modal", canvas);
     });
     
     //User added a circle link/modal onto current canvas
     $('#circle').click(function(){
-        addACircleOntoCanvas();
+        Displayer.addACircleOntoCanvas();
     });
     
     //User added a rect bookmark onto current canvas
     $('#bookmark').click(function(){
-        addARectOntoCanvas("bookmark");
+        Displayer.addARectOntoCanvas("bookmark", canvas);
     })
     
     //Output html code
@@ -62,29 +68,35 @@ $(document).ready(function(){
         
         //Toogle
         if (this.checked) {
-            currentBlock.showMode = "newtab";
+            currentBlock.type = "link-newtab";
         } else {
-            currentBlock.showMode = "modal";
+            currentBlock.type = "link-modal";
         }
     })
     
     //User set/reset the bookmark desination position
     //Add new / move the existed block of desination position onto the current canvas
     $('#setBookmark').click(function(){
-        addBookmarkOfBlock(currentBlock);
+       currentBlock.bookmark = Displayer.addBookmarkOnToCanvas(canvas);
     });
     
     //User changed page number
     $('#page-selector').change(function(){
-        toggleCanvas(this.value -1);
+        Displayer.toggleCanvas(this.value -1);
     })
+	 
+	 
+	 $('#import-htmltxt-btn').click(function(){
+//		 console.log($('#htmlCode').text());
+		 Displayer.resetEntireCanvasWithDomObject(Importor.objectOfFlowFromText($('#htmlCode').val()));
+		 
+		 //For testing detectTypeOfBlock()
+//		 console.log(Importor.detectTypeOfBlock($.parseHTML($('#htmlCode').val())[0]));
+	 })
+	 
 });
 
-var canvas; //The canvas which displays on the page currently
-var canvasArray = []; //of all canvas user added
-var imgArray = []; //of all images user added
 
-var currentBlock; //Currently selected bolck
 
 
 /////////////////////////////////////////
@@ -94,204 +106,25 @@ var currentBlock; //Currently selected bolck
 function currentBlockIsChanged () {
     //Changes tools display on toolbar
     //Depens on the type of the current block
-    toggleControlModule();
+    Displayer.toggleControlModule();
+   
+   //
+   
     
     //Update which blocks should be displayed on canvas
     //All blocks be of desination positon of bookmark should be hidden
     //Only one of them can be shown on page, which is the child of selected block
-    updateBlocks();
+    Displayer.updateBlocks();
 }
-
-function toggleCanvas (index) {
-    for (let i = 0; i < canvasArray.length; i++) {
-        let canvasIndex  = i + 1;
-        $("#canvas" + canvasIndex).parent().addClass("hide");
-        //console.log( $("#canvas" + canvasIndex)[0]);
-    }
-    let canvasIndex  = index + 1;
-    $("#canvas" + canvasIndex).parent().removeClass("hide");
-    
-    canvas = canvasArray[index];
-        
-    tooglePageSelector(canvasIndex);
-}
-
-function tooglePageSelector (index) {
-    $('#page-selector').val(index);
-}
-
-///////////////////////////////////////////
-//The functions below are related to View//
-///////////////////////////////////////////
-
-//Changes tools display on toolbar
-//Depens on the type of the current block
-function toggleControlModule () {
-    //Get all divisons of control module
-    var divsOfControlModules = $('.controlModules');
-    
-    //Enumerate all control modules
-    //Hide them by adding class "hide"
-    for (let i = 0; i < divsOfControlModules.length; i++) {
-        $(divsOfControlModules[i]).addClass("hide");
-    }
-    
-    //Decide which control module should be shown
-    //Show one of them by removing class "hide"
-    if (currentBlock.type == "link") {
-        $('#blockInfo').removeClass('hide');
-    } else if (currentBlock.type == "bookmark") {
-        $('#bookmarktools').removeClass('hide');
-    }
-}
-
-// ***** This method should be CALLED everytime page is changed *******
-//Update dispaly of blocks on current canvas
-//All "ofBookmark" should be hidden except the current one
-function updateBlocks() {
-    
-    //Hide all "ofBookmark" blocks first
-    let shapesInCanvas = canvas.getObjects();
-    for (let i = 0; i < shapesInCanvas.length; i++) {
-        if (shapesInCanvas[i].type == "ofBookmark") {
-            shapesInCanvas[i].visible = false;
-        }
-    }
-    
-    //Show the only one of "ofBookmark" if the selected block is bookmark
-    if (currentBlock.type == "bookmark") {
-        if (currentBlock.bookmark !== undefined) {
-            currentBlock.bookmark.visible = true;
-        }
-    }
-}
-
-
-function createCanvasWithId(id)
-{
-    if (id == undefined || id == undefined) {
-        console.warn("Coundn't create new canvas, because id inserted is invalid")
-    }
-    let newCanvas = document.createElement('canvas');
-    $(newCanvas).addClass("fabricCanvas");
-    newCanvas.id = id;
-    $('#canvasContanier').append(newCanvas);
-    console.log(id);
-    
-    let newFabricCanvas = new fabric.Canvas(id);
-    canvasArray.push(newFabricCanvas);
-    canvas = newFabricCanvas;
-    toggleCanvas(canvasArray.length);
-    
-    //Add page into Select element
-    $('#page-selector').append("<option value='" + canvasArray.length + "'>" + canvasArray.length + "</option>");
-}
-
-function addARectOntoCanvas(type)
-{
-    let aSquare = new fabric.Rect(
-        {
-            width: 50, left: 50,
-            height: 20, top: window.pageYOffset + 30,
-            fill: '#f55',
-            opacity: 0.6
-        }
-    );
-    
-    aSquare.set({
-        cornerSize: 10,
-        cornerColor: "#3480f9"
-    });
-    
-    aSquare.showMode = "modal";
-    aSquare.type = type;
-    
-    aSquare.on("selected", function(){
-        $('#positionInfo').text(" X: " + aSquare.left + " Y: " + aSquare.top);
-        currentBlock = aSquare;
-        $("#urlofblock").val(currentBlock.url ? currentBlock.url : "");
-        currentBlockIsChanged();
-    });
-    
-    aSquare.on("moving", function(){
-        $('#positionInfo').text(" X: " + aSquare.left + " Y: " + aSquare.top);
-    });
-    
-    aSquare.on("deselected", function() {
-        aBlockHasBeenDeselected(aSquare);
-    });
-
-    canvas.add(aSquare);
-}
-
-function addBookmarkOfBlock (block) {
-    
-    if (currentBlock.bookmark !== undefined) 
-    {
-        //remove it from parent canvas
-        for (let i = 0; i < canvasArray.length; i++)
-        {
-            canvasArray[i].remove(currentBlock.bookmark);
-        }
-    }
-    
-    let aSquare = new fabric.Rect(
-        {
-            width: 15, left: 50,
-            height: 15, top: window.pageYOffset + 30,
-            fill: '#ffdd55',
-            opacity: 0.6
-        }
-    );
-    
-    aSquare.set({
-        cornerSize: 10,
-        cornerColor: "#3480f9"
-    });
-    
-    currentBlock.bookmark = aSquare;
-    aSquare.type = "ofBookmark";
-    aSquare.uid = makeid();
-    
-    canvas.add(aSquare);
-}
-
-function addACircleOntoCanvas()
-{
-    //add script here
-}
-
-function loadImgIntoBackOfCanvas(url)
-{
-    let canvasIndex  = canvasArray.length + 1;
-    var canvasId = "canvas" + canvasIndex;
-    createCanvasWithId(canvasId);
-    
-    let img = new Image();
-    
-    img.src = url;
-    
-    img.onload = function(){
-
-        canvas.setBackgroundImage(url, canvas.renderAll.bind(canvas));
-        canvas.setWidth(img.width);
-        canvas.setHeight(img.height);
-        imgArray.push(img);
-    }
-    
-    img.onerror = function(){
-        console.log("img can not be loaded");
-    }
-
-    
-    toggleCanvas(canvasArray.length - 1);
-}
-
-
 
 function aBlockHasBeenDeselected (block) {
 }
 
+
+
+
+
+//Generate random ID
 function makeid()
 {
     var text = "";
@@ -302,6 +135,7 @@ function makeid()
 
     return text;
 }
+
 //http://static2.fjcdn.com/comments/Excuse+me+_4952da80933dca43cec9d820b9583dd3.png
 //http://static4.fjcdn.com/comments/Oh+no+my+souffle+_990ae6c79bbe141830cf8edc66233a8d.jpg
 //http://vignette4.wikia.nocookie.net/finalfantasy/images/3/33/Final-Fantasy-XV_Cover_(2016).jpg/revision/latest?cb=20160713205720
