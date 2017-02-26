@@ -4,45 +4,56 @@ var Importor = {
 	//	blocks: [{type: string, xx: xx}]
 	objectOfFlowFromText: function(text, completed) {
 		
-		let docSavaData = [];
-      let ofBookmarkBlocks = [];
-		let detectTypeOfBlock = this.detectTypeOfBlock; // Bind this function to be accessibale
-//		console.log($.parseHTML(text));
-		//Enumerate Pages/Canvas===========================================================
-		$.parseHTML(text).map(convertHTML2ObjectForCanvas);
+    let docSavaData = [];
+    let ofBookmarkBlocks = [];
+    let detectTypeOfBlock = this.detectTypeOfBlock; // Bind this function to be accessibale
+        
+    let loadedImgCount = 0;
+    let shiftOfCanvasCount = 0;
+//    		console.log($.parseHTML(text));
+    //Enumerate Pages/Canvas===========================================================
+    $.parseHTML(text).map(convertHTML2ObjectForCanvas);
 		
-      let loadedImgCount = 0;
+
       
 		function convertHTML2ObjectForCanvas (item, indexOfCanvas) { //item ==> HTML Dom
-//			console.log(item);
+//			console.log(item.tagName);
+            if (item.tagName !== "DIV"){
+                console.warn("Skipped 1 item which is not DIV element", item);
+                shiftOfCanvasCount += 1;
+                return false;
+            }
+            
          let imageUrl = item.style.backgroundImage.substr(5, item.style.backgroundImage.length - 7);
 			let page = {imageUrl: imageUrl, blocks: []};
 			
 			//Enumerate Blocks===============================================================
 			function convertHTML2ObjectForBloack(item, index){ //item ==> HTML Dom
 								
+//                console.log(item);
 				let theBlock = {
-					height: strToNumber(item.children[0].style.height) * page.scaleFactor,
-					width: strToNumber(item.children[0].style.width) * page.scaleFactor,
+					height: item.children[0] ? strToNumber(item.children[0].style.height) * page.scaleFactor : 1,
+					width: item.children[0] ? strToNumber(item.children[0].style.width) * page.scaleFactor : 1,
 					left: strToNumber(item.style.marginLeft) * page.scaleFactor,
 					top: strToNumber(item.style.marginTop) * page.scaleFactor,
 					type: item.getAttribute("data-block-type") ? item.getAttribute("data-block-type") : detectTypeOfBlock(item),
 					id: item.getAttribute("id"),
-               url: item.getAttribute("href"),
-               id: item.getAttribute("id"),
-               indexOfCanvas: indexOfCanvas
+                   url: item.getAttribute("href"),
+                   id: item.getAttribute("id"),
+                   indexOfCanvas: indexOfCanvas - shiftOfCanvasCount
 				};
             
-            function strToNumber(str){
-               return Number(str.substr(0, str.length - 2));
-            }
-				
-//				console.log(theBlock);
-            if (theBlock.type == "ofBookmark") {
-               ofBookmarkBlocks.push(theBlock);
-            }
-				
-            page.blocks.push(theBlock);
+                function strToNumber(str){
+                   return Number(str.substr(0, str.length - 2));
+                }
+
+    //				console.log(theBlock);
+                if (theBlock.type == "ofBookmark") {
+                    console.log("1st phase", theBlock);
+                   ofBookmarkBlocks.push(theBlock);
+                }
+
+                page.blocks.push(theBlock);
 				return true;
 			}
          
@@ -133,6 +144,8 @@ var Displayer = {
       
       //Clean canvas area
 		this.removeCanvas();
+        //Clean page selector
+        
       
       let loadedPagesCount = 0;
 
@@ -149,11 +162,36 @@ var Displayer = {
             for (let j = 0; j < page.length; j++){
                let theBlock = page[j];
                
+//                console.log(theCanvas.width, savaData[i]);
+                //Calculate the factor of the block
+                let scaleFactorOfTheCanvas = maxCanvasWidth < theCanvas.bkgImg.width ? maxCanvasWidth / theCanvas.bkgImg.width : 1;
+                
                if (theBlock.type !== "ofBookmark"){
+                   
+                   //Adjust size and position of the block before its rendered onto canvas
+                   theBlock.left *= scaleFactorOfTheCanvas;
+                   theBlock.top *= scaleFactorOfTheCanvas;
+                   theBlock.width *= scaleFactorOfTheCanvas;
+                   theBlock.height *= scaleFactorOfTheCanvas;
+                   
+                   //Call method and put it onto canvas
                   let aBlock = addARectOntoCanvas(theBlock.type, theCanvas, theBlock);
+                   
+                   //If type of the block is bookmark
+                   //Put its bookmark child block on to canvas also
                   if(theBlock.type == "bookmark") {
-                     aBlock.bookmark = addBookmarkOnToCanvas(canvasArray[theBlock.bookmark.indexOfCanvas], theBlock.bookmark);
+                      console.log(theBlock, canvasArray);
+                      //Calculate the scale factor of the bookmark alone
+                      let theCanvasOfTheBkm = canvasArray[theBlock.bookmark.indexOfCanvas];
+                      let scaleFactorOfTheCanvasOfTheBookmark = maxCanvasWidth < theCanvasOfTheBkm.bkgImg.width ? maxCanvasWidth / theCanvasOfTheBkm.bkgImg.width : 1;
+                      //adjust its position
+                       theBlock.bookmark.left *= scaleFactorOfTheCanvasOfTheBookmark;
+                       theBlock.bookmark.top *= scaleFactorOfTheCanvasOfTheBookmark;
+//                      console.log("2nd phase ", theBlock.bookmark);
+                      //Add it onto canvas
+                      aBlock.bookmark = addBookmarkOnToCanvas(canvasArray[theBlock.bookmark.indexOfCanvas], theBlock.bookmark);
                   }
+                   
                } else {
 //                  console.log("the following block will be added:", theBlock);
                }
@@ -186,22 +224,25 @@ var Displayer = {
 	
 	loadImgIntoBackOfCanvas: function(url, done) {
 		
-		//Create Canvas for the image
-		let canvasIndex  = canvasArray.length + 1;
-		var canvasId = "canvas" + canvasIndex;
-		this.createCanvasWithId(canvasId);
+        //Create Canvas for the image
+        let theCanvas = this.createCanvasWithId("canvas" + Number(canvasArray.length + 1));
+//        console.log(theCanvas);
       
-      let setCanvasBackImgWithImage = function (imageItem){
-//         console.log(imageItem.src, canvas);
-         let canvasScaleFactor = maxCanvasWidth < imageItem.width ? maxCanvasWidth / imageItem.width : 1;
-         canvasArray[canvasIndex - 1].setBackgroundImage(imageItem.src, canvasArray[canvasIndex - 1].renderAll.bind(canvasArray[canvasIndex - 1]),{
-            width: imageItem.width * canvasScaleFactor,
-            height: imageItem.height * canvasScaleFactor
-         });
-         canvasArray[canvasIndex - 1].setWidth(imageItem.width * canvasScaleFactor) ;
-         canvasArray[canvasIndex - 1].setHeight(imageItem.height * canvasScaleFactor);
-         done();
-      }
+        let setCanvasBackImgWithImage = function(imageItem){
+        //         console.log(imageItem.src, canvas);
+
+            let canvasScaleFactor = maxCanvasWidth < imageItem.width ? maxCanvasWidth / imageItem.width : 1;
+            theCanvas.setBackgroundImage(imageItem.src, theCanvas.renderAll.bind(theCanvas),{
+                width: imageItem.width * canvasScaleFactor,
+                height: imageItem.height * canvasScaleFactor
+            });
+            theCanvas.setWidth(imageItem.width * canvasScaleFactor) ;
+            theCanvas.setHeight(imageItem.height * canvasScaleFactor);
+
+            theCanvas.bkgImg = imageItem;
+            
+            done();
+        }
 
 
       let img;
@@ -244,6 +285,8 @@ var Displayer = {
 
 		//Add page into Select element
 		$('#page-selector').append("<option value='" + canvasArray.length + "'>" + canvasArray.length + "</option>");	
+        
+        return newFabricCanvas;
 	},
 	
 	toggleCanvas: function(index){
@@ -417,6 +460,8 @@ var Displayer = {
 
 //==============New version====
 //<div class="size-full" style="width: 800px; height: 450px; background-image: url('https://i.ytimg.com/vi/xwZCsfZsA4Y/maxresdefault.jpg'); background-size: 800px 450px;"><a data-block-type="link-modal" href="123" target="_blank" class="modal-link" style="position: absolute; margin-left: 216.667px; margin-top: 107.083px;"><img src="/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png" style="width: 74.375px; height: 30.625px;"></a><a data-block-type="bookmark" href="#b8xmXS" style="position: absolute; margin-left: 194.167px; margin-top: 232.5px;"><img src="/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png" style="width: 21.25px; height: 8.75px;"></a><a data-block-type="ofBookmark" id="b8xmXS" style="position: absolute; margin-left: 20.8333px; margin-top: 78.3333px;"><img src="/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png" style="width: 6.66667px; height: 6.66667px;"></a></div>
+
+//<div class="size-full" style="width: 800px; height: 450px; background-image: url('https://i.ytimg.com/vi/xwZCsfZsA4Y/maxresdefault.jpg'); background-size: 800px 450px;"><a data-block-type="link-modal" href="123" target="_blank" class="modal-link" style="position: absolute; margin-left: 216.667px; margin-top: 107.083px;"><img src="/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png" style="width: 75.3186px; height: 31.5686px;"></a><a data-block-type="bookmark" href="#ZK2xyX" style="position: absolute; margin-left: 194.167px; margin-top: 232.5px;"><img src="/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png" style="width: 22.1936px; height: 9.69362px;"></a></div><div class="size-full" style="width: 800px; height: 420px; background-image: url('http://www.studiocity-macau.com/uploads/images/SC/Entertainment/Batman/batman_share.jpg'); background-size: 800px 420px;"><a data-block-type="ofBookmark" id="ZK2xyX" style="position: absolute; margin-left: 443.128px; margin-top: 132.085px;"><img src="/cpdoc/wp-content/uploads/2016/12/NFFFFFF-0.png" style="width: 15.0979px; height: 15.0979px;"></a></div>
 
 
 //https://i.ytimg.com/vi/xwZCsfZsA4Y/maxresdefault.jpg

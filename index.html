@@ -27,18 +27,18 @@
         <div class="panel panel-default toolbar">
             <div class="panel-body">
                 <div class="contanier" id="toolbarZone">
-                    <div class="gerneralController">
+                    <div class="gerneralController form-inline">
 <!--                        <input type="text" id="imgUrl">-->
                         <button type="button" class="btn btn-default btn-sm" id="" data-toggle="modal" data-target="#myModal">Insert Image</button>
-                        <button type="button" class="btn btn-danger btn-sm" id="" data-toggle="modal" data-target="#myModal">Delete Image</button>
-                        <select class="form-control" id="page-selector" style="width: 4em; float: right;">
-                            
+
+                        <button type="button" class="btn btn-danger btn-sm hide" id="" data-toggle="modal" data-target="#myModal">Delete Image</button>
+                        <select class="form-control" id="page-selector" style="width: 4em;">
                         </select>
 
                         <br><br>
                         <button class="btn btn-info btn-sm" id="square">link</button>
                         <button class="btn btn-info btn-sm" id="bookmark">Bookmark</button>
-                        
+                        <button class="btn btn-danger btn-sm" id="output">Go!</button>
                         <br><br>
                         
                   
@@ -56,18 +56,19 @@
                         <button class="btn btn-info btn-sm" id="setBookmark">Reset/Set bookmark position</button>
                     </div>
                     
-                    <div id="output">
-                        <button class="btn btn-danger btn-sm" id="output">Go!</button>
-                        <button class="btn btn-info btn-sm" id="import-htmltxt-btn">import</button>
-                    </div>
+
                    
                      <div>
 
-                        <textarea class="form-control output-area" id="htmlCode" style="width: 400px; height: 6em"></textarea>
+                        <textarea class="form-control output-area" id="htmlCode" style="width: 300px; height: 6em"></textarea>
 
                      </div>
-                   
-                   <div class="hidden-debug" style="float: right">
+                    
+                    <div id="output">
+                        <button class="btn btn-warning btn-sm" id="import-htmltxt-btn">import</button>
+                    </div>
+                    
+                   <div class="hidden-debug hide" style="float: right">
                      <button class="btn btn-warning btn-sm"> 1 </button>
                    </div>
                 </div>

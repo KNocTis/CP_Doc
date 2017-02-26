@@ -10,9 +10,11 @@ function htmlCodeForWPwithBlocks(blocks, image)
     if(blocks == undefined || blocks.length == 0){return};
     
     //
+    console.log("blocks ", blocks);
     var scaleFactor = 1;
     if (maxWidth < image.width){
-        scaleFactor = maxWidth / image.width ;
+        scaleFactor =  maxWidth / image.width ;
+//        console.log(blocks[0].canvas.width, scaleFactor);
     }
         
     let backgroundStr = "url(\'" + image.src + "\')"
@@ -24,6 +26,11 @@ function htmlCodeForWPwithBlocks(blocks, image)
     aDiv.style.backgroundImage = backgroundStr;
     aDiv.style.backgroundSize = image.width * scaleFactor + "px" + " " + image.height * scaleFactor + "px";
 
+//    console.log("before: scalefoactor ", scaleFactor);
+    if (blocks[0].canvas.width < image.width)
+        scaleFactor *= image.width / blocks[0].canvas.width;
+//    console.log("after: scalefoactor ", scaleFactor);
+//    console.log(image.width, blocks[0].canvas.width, blocks);
     for (let i = 0; i < blocks.length; i++)
     {
         createElmentWithBlock(blocks[i], aDiv, scaleFactor, i);

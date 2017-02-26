@@ -9,6 +9,11 @@
     vertical-align: top;
 }
 
+#htmlCode {
+    font-size: 9px;
+    color: dimgray;
+}
+
 .toolbar {
     position: fixed; 
     width: 100%;
