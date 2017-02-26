@@ -7,6 +7,7 @@
 #toolbarZone div {
     display: inline-block;
     vertical-align: top;
+   margin-right: 1em;
 }
 
 #htmlCode {
@@ -22,9 +23,11 @@
     top: 0px;
 }
 
+/*
 .gerneralController {
     min-width: 20em;
 }
+*/
 
 #canvasContanier {
     margin-top: 12em;
@@ -44,15 +47,11 @@
 }
 
 .controlModules {
-    margin-left: 2em;
+/*    margin-left: 2em;*/
 }
 
 #output {
     margin-left: 2em;
-}
-
-.output-area {
-   height: 6em;
 }
 
 .hide {
