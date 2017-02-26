@@ -4,9 +4,13 @@ var imgArray = []; //of all images user added
 
 var currentBlock; //Currently selected bolck
 
+//options
+let maxCanvasWidth = 1024;
+
 $(document).ready(function(){
     
-    //createCanvas();
+    //Set options
+   maxCanvasWidth = $(window).width() * 0.9;
     
     //User added a img into Canvas
     $('#loadimg').click(function(){
@@ -88,7 +92,10 @@ $(document).ready(function(){
 	 
 	 $('#import-htmltxt-btn').click(function(){
 //		 console.log($('#htmlCode').text());
-		 Displayer.resetEntireCanvasWithDomObject(Importor.objectOfFlowFromText($('#htmlCode').val()));
+       Importor.objectOfFlowFromText($('#htmlCode').val(), function(savaData) {
+          Displayer.resetEntireCanvasWithDomObject(savaData);
+       })
+//		 Displayer.resetEntireCanvasWithDomObject(Importor.objectOfFlowFromText($('#htmlCode').val()));
 		 
 		 //For testing detectTypeOfBlock()
 //		 console.log(Importor.detectTypeOfBlock($.parseHTML($('#htmlCode').val())[0]));

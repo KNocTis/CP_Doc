@@ -29,7 +29,7 @@ function htmlCodeForWPwithBlocks(blocks, image)
         createElmentWithBlock(blocks[i], aDiv, scaleFactor, i);
     }
     
-    console.log(aDiv);
+//    console.log(aDiv);
     $('#htmlCode').val($('#htmlCode').val() + aDiv.outerHTML.replace(/&quot;/g, "\'"));
     //console.log(aDiv);
     

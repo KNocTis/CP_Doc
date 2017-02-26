@@ -1,0 +1,55 @@
+#canvasContanier {
+   margin-left: 5%;
+   max-width: 90%;
+}
+
+            
+#toolbarZone div {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.toolbar {
+    position: fixed; 
+    width: 100%;
+    z-index: 999;
+    display: block;
+    top: 0px;
+}
+
+.gerneralController {
+    min-width: 20em;
+}
+
+#canvasContanier {
+    margin-top: 12em;
+    position: static;
+
+}
+
+.fabricCanvas {
+    margin: auto;
+    width: 300px;
+    height: 300px;
+    border: 1px solid #ccc;
+}
+
+#imgUrl {
+    width: 80%;
+}
+
+.controlModules {
+    margin-left: 2em;
+}
+
+#output {
+    margin-left: 2em;
+}
+
+.output-area {
+   height: 6em;
+}
+
+.hide {
+    display: none;
+}

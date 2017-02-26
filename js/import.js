@@ -2,7 +2,7 @@ var Importor = {
 	
 	// imgurl: string
 	//	blocks: [{type: string, xx: xx}]
-	objectOfFlowFromText: function(text) {
+	objectOfFlowFromText: function(text, completed) {
 		
 		let docSavaData = [];
       let ofBookmarkBlocks = [];
@@ -11,21 +11,21 @@ var Importor = {
 		//Enumerate Pages/Canvas===========================================================
 		$.parseHTML(text).map(convertHTML2ObjectForCanvas);
 		
+      let loadedImgCount = 0;
+      
 		function convertHTML2ObjectForCanvas (item, indexOfCanvas) { //item ==> HTML Dom
-			console.log(item);
-         
-			let page = {imageUrl: item.style.backgroundImage, blocks: []};
+//			console.log(item);
+         let imageUrl = item.style.backgroundImage.substr(5, item.style.backgroundImage.length - 7);
+			let page = {imageUrl: imageUrl, blocks: []};
 			
-			//Enumerate Blocks===============================================================        
-         $.parseHTML(item.innerHTML).map(convertHTML2ObjectForBloack);
-			
+			//Enumerate Blocks===============================================================
 			function convertHTML2ObjectForBloack(item, index){ //item ==> HTML Dom
 								
 				let theBlock = {
-					height: strToNumber(item.children[0].style.height),
-					width: strToNumber(item.children[0].style.width),
-					left: strToNumber(item.style.marginLeft),
-					top: strToNumber(item.style.marginTop),
+					height: strToNumber(item.children[0].style.height) * page.scaleFactor,
+					width: strToNumber(item.children[0].style.width) * page.scaleFactor,
+					left: strToNumber(item.style.marginLeft) * page.scaleFactor,
+					top: strToNumber(item.style.marginTop) * page.scaleFactor,
 					type: item.getAttribute("data-block-type") ? item.getAttribute("data-block-type") : detectTypeOfBlock(item),
 					id: item.getAttribute("id"),
                url: item.getAttribute("href"),
@@ -45,30 +45,47 @@ var Importor = {
             page.blocks.push(theBlock);
 				return true;
 			}
-			
-//			console.log(page);
-			docSavaData.push(page);
+         
+         
+         addImageByUrl(imageUrl, function(img){
+            page.scaleFactor = img.width / Number(item.style.width.substr(0,item.style.width.length - 2));
+//            console.log(page.scaleFactor, img.width, item.style.width);
+            $.parseHTML(item.innerHTML).map(convertHTML2ObjectForBloack);
+   //			console.log(page);
+            loadedImgCount += 1;
+            imageHasBeenLoaded();
+         })
+         
+         docSavaData.push(page);
 		}
       
-      //Enumerate ofBookmark Blocks===============================================================
-      //To match bookmarks
-      ofBookmarkBlocks.map(function(childItem) {  // ======= 1st loop
-         docSavaData.map(function(page) {    //=============   2nd loop
-            page.blocks.map(function(parentItem){ //=========  3rd loop
-               if(parentItem.url){
-//                  console.log(childItem.id, "   ", parentItem.url.substr(1,parentItem.url.length));
-                  if(childItem.id == parentItem.url.substr(1, parentItem.url.length)){
-                     parentItem.bookmark = childItem;
+      function imageHasBeenLoaded () {
+         if (loadedImgCount == docSavaData.length)
+            imagesHasBeenFullyLoaded();
+      }
+      
+      function imagesHasBeenFullyLoaded () {
+         //Enumerate ofBookmark Blocks===============================================================
+         //To match bookmarks
+         ofBookmarkBlocks.map(function(childItem) {  // ======= 1st loop
+            docSavaData.map(function(page) {    //=============   2nd loop
+               page.blocks.map(function(parentItem){ //=========  3rd loop
+                  if(parentItem.url){
+   //                  console.log(childItem.id, "   ", parentItem.url.substr(1,parentItem.url.length));
+                     if(childItem.id == parentItem.url.substr(1, parentItem.url.length)){
+                        parentItem.bookmark = childItem;
+                     }
                   }
-               }
+               })
             })
-         })
-      })
+         });
          
-//		console.log(docSavaData);
-		return docSavaData;
+		console.log(docSavaData);
+         completed(docSavaData);
+      }
+
+         
 	},
-	
 	//For build before 20170225, 
 	//This method is ****NOT reliable*****
 	detectTypeOfBlock: function (item) {
@@ -85,20 +102,21 @@ var Importor = {
 			return "ofBookmark";
 
 		return "link-newtab";
-	},
-   
-   addImageByUrl: function(url, done) {
-		let img = new Image();
-		img.src = url;
-		img.onload = function(){
+	}
+}
+
+
+let addImageByUrl = function (url, done) {
+   let img = new Image();
+   img.src = url;
+   img.onload = function(){
 //         console.log(done);
-         if(done){done(this);};
-		}
-		img.onerror = function(){
-		  console.log("img can not be loaded");
-		}
-      imgArray.push(img);
+      if(done){done(this);};
    }
+   img.onerror = function(){
+     console.log("img can not be loaded");
+   }
+   imgArray.push(img);
 }
 
 ///////////////////////////////////////////
@@ -160,7 +178,7 @@ var Displayer = {
 		for (let i = 0; i < savaData.length; i++) {
 			let item = savaData[i];
 //         console.log(item.imageUrl.substr(5, item.imageUrl.length - 7));
-			this.loadImgIntoBackOfCanvas(item.imageUrl.substr(5, item.imageUrl.length - 7), imageHasBeenLoadedOntoCanvas);
+			this.loadImgIntoBackOfCanvas(item.imageUrl, imageHasBeenLoadedOntoCanvas);
 		}
       
 		
@@ -172,35 +190,36 @@ var Displayer = {
 		let canvasIndex  = canvasArray.length + 1;
 		var canvasId = "canvas" + canvasIndex;
 		this.createCanvasWithId(canvasId);
+      
+      let setCanvasBackImgWithImage = function (imageItem){
+//         console.log(imageItem.src, canvas);
+         let canvasScaleFactor = maxCanvasWidth < imageItem.width ? maxCanvasWidth / imageItem.width : 1;
+         canvasArray[canvasIndex - 1].setBackgroundImage(imageItem.src, canvasArray[canvasIndex - 1].renderAll.bind(canvasArray[canvasIndex - 1]),{
+            width: imageItem.width * canvasScaleFactor,
+            height: imageItem.height * canvasScaleFactor
+         });
+         canvasArray[canvasIndex - 1].setWidth(imageItem.width * canvasScaleFactor) ;
+         canvasArray[canvasIndex - 1].setHeight(imageItem.height * canvasScaleFactor);
+         done();
+      }
 
-		//Load image into canvas
+
       let img;
       
       imgArray.map(function(imgItem){
-         if (imgItem.url == url) {
+//         console.log(img);
+         if (imgItem.src == url) {
+//            console.log(imgItem, "  ", url);
             img = imgItem;
+            setCanvasBackImgWithImage(imgItem);
          }
       })
       
       if (img == undefined) {
-         Importor.addImageByUrl(url, function(imgItem){
-            canvasArray[canvasIndex - 1].setBackgroundImage(url, canvas.renderAll.bind(canvas));
-            canvasArray[canvasIndex - 1].setWidth(imgItem.width);
-            canvasArray[canvasIndex - 1].setHeight(imgItem.height);
+         addImageByUrl(url, function(imgItem){
+            setCanvasBackImgWithImage(imgItem);
          })
       }
-      
-//		let img = new Image();
-//		img.src = url;
-//		img.onload = function(){
-////         console.log(done);
-//
-//         if(done){done();};
-//		}
-//		img.onerror = function(){
-//		  console.log("img can not be loaded");
-//		}
-//      imgArray.push(img);
 
 		//Swtich page to this image
 		this.toggleCanvas(canvasArray.length - 1);
