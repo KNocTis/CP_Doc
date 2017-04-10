@@ -12,6 +12,8 @@ jQuery(document).ready(function($) {
       }
       console.log($('.modal-test')[0].className);
   });
+   
+
 
   // Detect windows width function
   var $window = $(window);
@@ -47,13 +49,33 @@ jQuery(document).ready(function($) {
             $(aPostDiv).css("overflow", "scroll")
             $(aPostDiv).css("height", "100%")
             
-            console.log(htmlStr);
+//            console.log(htmlStr);
             $("#modal-content").html("");
             
-            var aiframe = $("<iframe />");
-            aiframe.attr({srcdoc: htmlStr});
-            aiframe.addClass("anotherPostContent");
+//            var aiframe = $("<iframe />");
+//            aiframe.attr({srcdoc: htmlStr});
+//            aiframe.addClass("anotherPostContent");
+//            $("#modal-content").append(aPostDiv);
+           
+//            var aiframe = $("<div/>", {
+//               class: "container anotherPostContent"
+//            }).html(htmlStr);
+//            aiframe.attr({srcdoc: htmlStr});
+//            aiframe.addClass("anotherPostContent");
             $("#modal-content").append(aPostDiv);
+           
+          //Copy function
+            $('.crayon-copy-button').click(function(){
+               $('.crayon-plain-wrap').find('textarea').select();
+               document.execCommand("copy");
+            })
+            
+            //Remove number column and other icons
+            jQuery('.crayon-nums').remove();
+            jQuery('.crayon-plain-button').remove();
+            jQuery('.crayon-wrap-button').remove();
+            jQuery('.crayon-expand-button').remove();
+            jQuery('.crayon-popup-button').remove();
         })          
           
 //        var postContent = $("#modal-content").load(post_link,function(e){

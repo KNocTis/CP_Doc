@@ -22,8 +22,27 @@
 
 #modal-content {
     height: 100%;
+
 }
 
+.modal-wrapper {
+   font-family: "Microsoft YaHei", "Geneva", sans-serif;
+   
+}
+
+.close-modal {
+   background-color: white;
+/*   border:3px solid lightgrey;*/
+/*   border-radius: 50%;*/
+/*
+   width: 25px;
+   height: 25px;
+   color: lightgrey;
+   font-size: 16px;
+*/
+   margin-right: -30px;
+   margin-top: -18px;
+}
 
 @media only screen and (min-width: 768px) {
   .hide {
@@ -48,10 +67,9 @@
         padding: 20px 15px;
         background: #FEFEFE;
         color: #000000;
-        text-align: center;
         left: 10%;
         top: 15%;
-        border:1px solid lightgrey;
+        border: 6px solid rgba(80, 80, 80, .25);
         border-radius: 10px;
         height: 70%;
     }

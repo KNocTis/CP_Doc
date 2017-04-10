@@ -5,14 +5,14 @@
 
             
 #toolbarZone div {
-    display: inline-block;
-    vertical-align: top;
+   display: inline-block;
+   vertical-align: top;
    margin-right: 1em;
 }
 
 #htmlCode {
-    font-size: 9px;
-    color: dimgray;
+   font-size: 9px;
+   color: dimgray;
 }
 
 .toolbar {
